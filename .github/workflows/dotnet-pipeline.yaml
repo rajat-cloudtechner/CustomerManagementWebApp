@@ -83,23 +83,6 @@ jobs:
           target: "/home/${{ secrets.GCP_VM_USER }}/customerapp/"
           debug: true
 
-      # Step 9: SSH into GCP VM and run the application
-      # - name: SSH and Run App
-      #   uses: appleboy/ssh-action@v1.2.0
-      #   with:
-      #     host: ${{ secrets.GCP_VM_IP }}
-      #     username: ${{ secrets.GCP_VM_USER }}
-      #     key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
-      #     script: |
-      #       cd /home/${{ secrets.GCP_VM_USER }}/customerapp
-      #       nohup dotnet CustomerManagementWebApp.dll --urls "http://0.0.0.0:5329" &
-
-      # - name: Run .NET Application
-      #   run: |
-      #     ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_IP }} "nohup dotnet /home/${{ secrets.GCP_VM_USER }}/customerapp/publish/CustomerManagementWebApp.dll > /home/${{ secrets.GCP_VM_USER }}/customerapp/app.log 2>&1 &"
-
-      # Step 13: Run the .NET Application on GCP VM with Debugging
-      # Step 13: Run the .NET Application on GCP VM with a Different Port
       - name: Run .NET Application with Debugging
         run: |
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_IP }} << 'EOF'
