@@ -62,6 +62,11 @@ jobs:
           echo "${{ secrets.GCP_SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
 
+      # Step 9: Test SSH Connection (Debugging Step)
+      - name: Test SSH Connection
+        run: |
+          ssh -v -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_IP }} "echo 'SSH connection successful'"
+
       # Step 8: Deploy the application to GCP VM via SCP
       - name: Deploy to GCP VM
         uses: appleboy/scp-action@v0.1.2
@@ -71,6 +76,7 @@ jobs:
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
           source: "./publish/*"
           target: "/home/${{ secrets.GCP_VM_USER }}/customerapp/"
+          debug: true
 
       # Step 9: SSH into GCP VM and run the application
       - name: SSH and Run App
