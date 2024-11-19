@@ -62,6 +62,16 @@ jobs:
           echo "${{ secrets.GCP_SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
 
+      - name: Install .NET SDK on GCP VM
+        run: |
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_IP }} << 'EOF'
+            wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+            sudo dpkg -i packages-microsoft-prod.deb
+            sudo apt-get update
+            sudo apt-get install -y apt-transport-https
+            sudo apt-get update && sudo apt-get install -y dotnet-sdk-7.0
+          EOF
+
       # Step 8: Deploy the application to GCP VM via SCP
       - name: Deploy to GCP VM
         uses: appleboy/scp-action@v0.1.7
