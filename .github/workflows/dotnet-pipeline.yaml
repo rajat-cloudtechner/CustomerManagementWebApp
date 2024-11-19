@@ -57,6 +57,11 @@ jobs:
       - name: Publish application
         run: dotnet publish -c Release -o ./publish
 
+      - name: Create SSH Key File
+        run: |
+          echo "${{ secrets.GCP_SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
       # Step 8: Deploy the application to GCP VM via SCP
       - name: Deploy to GCP VM
         uses: appleboy/scp-action@v0.1.2
