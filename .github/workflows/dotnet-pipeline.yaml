@@ -99,13 +99,15 @@ jobs:
       #     ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_IP }} "nohup dotnet /home/${{ secrets.GCP_VM_USER }}/customerapp/publish/CustomerManagementWebApp.dll > /home/${{ secrets.GCP_VM_USER }}/customerapp/app.log 2>&1 &"
 
       # Step 13: Run the .NET Application on GCP VM with Debugging
+      # Step 13: Run the .NET Application on GCP VM with a Different Port
       - name: Run .NET Application with Debugging
         run: |
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_IP }} << 'EOF'
-            echo "Starting .NET application and binding to 0.0.0.0:5000..." >> /home/${{ secrets.GCP_VM_USER }}/customerapp/app.log
-            nohup dotnet /home/${{ secrets.GCP_VM_USER }}/customerapp/publish/CustomerManagementWebApp.dll --urls "http://0.0.0.0:5000" >> /home/${{ secrets.GCP_VM_USER }}/customerapp/app.log 2>&1 &
+            echo "Starting .NET application and binding to 0.0.0.0:5259..." >> /home/${{ secrets.GCP_VM_USER }}/customerapp/app.log
+            nohup dotnet /home/${{ secrets.GCP_VM_USER }}/customerapp/publish/CustomerManagementWebApp.dll --urls "http://0.0.0.0:5259" >> /home/${{ secrets.GCP_VM_USER }}/customerapp/app.log 2>&1 &
             sleep 5
             echo "Checking if the application is running..." >> /home/${{ secrets.GCP_VM_USER }}/customerapp/app.log
             pgrep -a dotnet >> /home/${{ secrets.GCP_VM_USER }}/customerapp/app.log || echo "Application failed to start." >> /home/${{ secrets.GCP_VM_USER }}/customerapp/app.log
           EOF
+
       
