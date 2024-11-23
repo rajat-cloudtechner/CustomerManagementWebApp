@@ -14,7 +14,6 @@ jobs:
     name: Build, Analyze, and Deploy
     runs-on: ubuntu-latest
 
-    if: github.event.pull_request.merged == true
 
     steps:
       # Step 1: Checkout the code
