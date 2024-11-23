@@ -11,9 +11,9 @@ on:
 
 jobs:
   deploy:
-    name: Build, Analyze, and Deploy
+    if: ${{ github.event_name == 'push' || github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
-
+    name: Build, Analyze, and Deploy
 
     steps:
       # Step 1: Checkout the code
@@ -36,11 +36,13 @@ jobs:
       - name: Publish application
         run: dotnet publish -c Release -o ./publish
 
+      # Step 5: Create SSH Key File
       - name: Create SSH Key File
         run: |
           echo "${{ secrets.GCP_SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
 
+      # Step 6: Install .NET SDK on GCP VM
       - name: Install .NET SDK on GCP VM
         run: |
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_IP }} << 'EOF'
@@ -51,7 +53,7 @@ jobs:
             sudo apt-get update && sudo apt-get install -y dotnet-sdk-7.0
           EOF
 
-      # Step 5: Deploy the application to GCP VM via SCP
+      # Step 7: Deploy the application to GCP VM via SCP
       - name: Deploy to GCP VM
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -62,6 +64,7 @@ jobs:
           target: "/home/${{ secrets.GCP_VM_USER }}/customerapp/"
           debug: true
 
+      # Step 8: Run .NET Application with Debugging
       - name: Run .NET Application with Debugging
         run: |
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_IP }} << 'EOF'
