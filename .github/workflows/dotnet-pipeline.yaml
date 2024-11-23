@@ -1,14 +1,14 @@
-name: SonarQube Cloud and Deploy to GCP VM
+# .github/workflows/deploy-to-gcp-main.yml
+
+name: Deploy to GCP VM on Main Branch Update
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    types: [opened, synchronize, reopened]
 
 jobs:
-  build:
+  deploy:
     name: Build, Analyze, and Deploy
     runs-on: ubuntu-latest
 
@@ -29,31 +29,7 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
 
-      # Step 4: SonarCloud analysis start
-      - name: SonarCloud Scan - Begin
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: 'zulu'
-      - name: Start SonarCloud Analysis
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /k:"rajat-cloudtechner_CustomerManagementWebApp" /o:"rajat-cloudtechner" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-
-      # Step 5: Build the solution
-      - name: Build the solution
-        run: dotnet build --no-restore --configuration Release
-
-      # Step 6: SonarCloud analysis end
-      - name: SonarCloud Scan - End
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
-      # Step 7: Publish the application
+      # Step 4: Publish the application
       - name: Publish application
         run: dotnet publish -c Release -o ./publish
 
@@ -72,7 +48,7 @@ jobs:
             sudo apt-get update && sudo apt-get install -y dotnet-sdk-7.0
           EOF
 
-      # Step 8: Deploy the application to GCP VM via SCP
+      # Step 5: Deploy the application to GCP VM via SCP
       - name: Deploy to GCP VM
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -92,5 +68,3 @@ jobs:
             echo "Checking if the application is running..." >> /home/${{ secrets.GCP_VM_USER }}/customerapp/app.log
             pgrep -a dotnet >> /home/${{ secrets.GCP_VM_USER }}/customerapp/app.log || echo "Application failed to start." >> /home/${{ secrets.GCP_VM_USER }}/customerapp/app.log
           EOF
-
-      
