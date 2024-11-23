@@ -1,9 +1,11 @@
-# .github/workflows/deploy-to-gcp-main.yml
-
 name: Deploy to GCP VM on Main Branch Update
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
+    types: [closed]
     branches:
       - main
 
@@ -11,6 +13,8 @@ jobs:
   deploy:
     name: Build, Analyze, and Deploy
     runs-on: ubuntu-latest
+
+    if: github.event.pull_request.merged == true
 
     steps:
       # Step 1: Checkout the code
