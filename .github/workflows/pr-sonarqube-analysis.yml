@@ -1,6 +1,14 @@
+name: PR SonarQube Analysis with Auto-Merge
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
 jobs:
   sonar_analysis:
-    name: SonarQube Analysis
+    name: SonarQube Analysis and Auto-Merge
     runs-on: ubuntu-latest
 
     steps:
