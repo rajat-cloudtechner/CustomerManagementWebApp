@@ -6,14 +6,15 @@ on:
       - main
     types: [opened, synchronize, reopened]
 
+permissions:
+  pull-requests: write
+  contents: write
+
 jobs:
   sonar_analysis:
     name: SonarQube Analysis and Auto-Merge
     runs-on: ubuntu-latest
-
-    permissions:
-      pull-requests: write
-      contents: write
+    if: github.actor == 'dependabot[bot]'
 
     steps:
       # Step 1: Checkout the code
@@ -58,10 +59,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
-      # Step 8: Enable Auto-Merge (If Analysis Passes)
+      # Step 8: Enable Auto-Merge for Dependabot (If Analysis Passes)
       - name: Enable auto-merge for the pull request
-        uses: peter-evans/enable-pull-request-automerge@v2
+        uses: peter-evans/enable-pull-request-automerge@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: squash
