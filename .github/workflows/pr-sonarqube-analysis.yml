@@ -1,13 +1,3 @@
-# .github/workflows/pr-sonarqube-analysis.yml
-
-name: PR SonarQube Analysis
-
-on:
-  pull_request:
-    branches:
-      - main
-    types: [opened, synchronize, reopened]
-
 jobs:
   sonar_analysis:
     name: SonarQube Analysis
@@ -55,3 +45,11 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+      # Step 8: Enable Auto-Merge (If Analysis Passes)
+      - name: Enable auto-merge for the pull request
+        uses: peter-evans/enable-pull-request-automerge@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
