@@ -11,6 +11,10 @@ jobs:
     name: SonarQube Analysis and Auto-Merge
     runs-on: ubuntu-latest
 
+    permissions:
+      pull-requests: write
+      contents: write
+
     steps:
       # Step 1: Checkout the code
       - name: Checkout code
