@@ -1,0 +1,57 @@
+# .github/workflows/pr-sonarqube-analysis.yml
+
+name: PR SonarQube Analysis
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonar_analysis:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Step 2: Set up .NET Core SDK
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.x'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: dotnet restore
+
+      # Step 4: Set up Java (SonarScanner requires Java)
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
+
+      # Step 5: Start SonarQube Analysis
+      - name: Start SonarQube Analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet sonarscanner begin /k:"rajat-cloudtechner_CustomerManagementWebApp" /o:"rajat-cloudtechner" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+
+      # Step 6: Build the solution
+      - name: Build the solution
+        run: dotnet build --no-restore --configuration Release
+
+      # Step 7: End SonarQube Analysis
+      - name: End SonarQube Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
