@@ -11,13 +11,19 @@ on:
 
 jobs:
   deploy:
-    name: Build, Analyze, and Deploy
     runs-on: ubuntu-latest
-
-    # Conditional run only when the pull request is merged
-    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true) }}
+    name: Build, Analyze, and Deploy
 
     steps:
+      # Log event details to debug why the workflow isn't triggering
+      - name: Log event context for debugging
+        run: echo "${{ toJson(github) }}"
+
+      # Condition to check if this is either a direct push to main OR a merged pull request
+      - name: Proceed if merged or pushed to main
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true) }}
+        run: echo "Proceeding with deployment..."
+
       # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v4
